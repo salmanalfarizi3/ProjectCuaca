@@ -1,70 +1,141 @@
-const axios = require('axios');
+const { sequelize } = require('../models');
 
+// 1. AMBIL DATA CUACA (GET) - Terhubung langsung ke Supabase
 exports.getWeatherData = async (req, res) => {
-  const { city, condition, limit } = req.query;
-  const apiKey = process.env.OPENWEATHER_API_KEY;
+  try {
+    const { city, condition } = req.query;
+    
+    let query = 'SELECT * FROM weather_logs WHERE 1=1';
+    let replacements = {};
 
-  let liveWeatherData = null;
-
-  if (city && apiKey) {
-    try {
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`;
-      const response = await axios.get(url);
-      const wData = response.data;
-
-      liveWeatherData = {
-        city: wData.name,
-        country: wData.sys?.country || 'ID',
-        temperature: wData.main.temp,
-        humidity: wData.main.humidity,
-        windSpeed: wData.wind.speed,
-        weatherCondition: wData.weather[0].main,
-        airQualityIndex: Math.floor(Math.random() * 50) + 20
-      };
-    } catch (apiErr) {
-      console.log('OpenWeather Fetch Error:', apiErr.message);
+    if (city) {
+      query += ' AND city ILIKE :city';
+      replacements.city = `%${city}%`;
     }
+
+    if (condition) {
+      query += ' AND "weatherCondition" ILIKE :condition';
+      replacements.condition = `%${condition}%`;
+    }
+
+    query += ' ORDER BY id DESC LIMIT 50';
+
+    const data = await sequelize.query(query, {
+      replacements: replacements,
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      total_records: data.length,
+      data: data
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: 'Gagal mengambil data dari database',
+      error: error.message
+    });
   }
-
-  return res.json({
-    status: 'success (Serverless Mode)',
-    total_records: 1,
-    data: [liveWeatherData || { 
-      id: 1, 
-      city: city || 'Yogyakarta', 
-      country: 'ID',
-      temperature: 28.5, 
-      humidity: 70,
-      windSpeed: 3.5,
-      weatherCondition: condition || 'Clear',
-      airQualityIndex: 30 
-    }]
-  });
 };
 
+// 2. TAMBAH DATA CUACA (POST) - Masuk langsung ke Supabase
 exports.createWeather = async (req, res) => {
-  const { city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex } = req.body;
-  
-  return res.status(201).json({ 
-    status: 'success (Serverless Mode)', 
-    message: 'Data cuaca berhasil ditambahkan', 
-    data: { id: Math.floor(Math.random() * 1000), city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex } 
-  });
+  try {
+    const { city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex } = req.body;
+    
+    const query = `
+      INSERT INTO weather_logs (city, country, temperature, humidity, "windSpeed", "weatherCondition", "airQualityIndex", "createdAt", "updatedAt")
+      VALUES (:city, :country, :temperature, :humidity, :windSpeed, :weatherCondition, :airQualityIndex, NOW(), NOW())
+      RETURNING *;
+    `;
+
+    const result = await sequelize.query(query, {
+      replacements: { 
+        city: city || 'Yogyakarta', 
+        country: country || 'ID', 
+        temperature: temperature || 28.0, 
+        humidity: humidity || 70, 
+        windSpeed: windSpeed || 3.0, 
+        weatherCondition: weatherCondition || 'Clear', 
+        airQualityIndex: airQualityIndex || 30 
+      },
+      type: sequelize.QueryTypes.INSERT
+    });
+
+    return res.status(201).json({ 
+      status: 'success', 
+      message: 'Data cuaca berhasil ditambahkan ke database', 
+      data: result[0] 
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: 'Gagal menyimpan data ke database',
+      error: error.message
+    });
+  }
 };
 
+// 3. UPDATE DATA CUACA (PUT) - Memperbarui data di Supabase
 exports.updateWeather = async (req, res) => {
-  const { id } = req.params;
-  return res.json({ 
-    status: 'success (Serverless Mode)', 
-    message: `Data cuaca dengan ID ${id} berhasil diperbarui`,
-    data: req.body 
-  });
+  try {
+    const { id } = req.params;
+    const { city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex } = req.body;
+
+    const query = `
+      UPDATE weather_logs 
+      SET city = COALESCE(:city, city),
+          country = COALESCE(:country, country),
+          temperature = COALESCE(:temperature, temperature),
+          humidity = COALESCE(:humidity, humidity),
+          "windSpeed" = COALESCE(:windSpeed, "windSpeed"),
+          "weatherCondition" = COALESCE(:weatherCondition, "weatherCondition"),
+          "airQualityIndex" = COALESCE(:airQualityIndex, "airQualityIndex"),
+          "updatedAt" = NOW()
+      WHERE id = :id
+      RETURNING *;
+    `;
+
+    const result = await sequelize.query(query, {
+      replacements: { id, city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex },
+      type: sequelize.QueryTypes.UPDATE
+    });
+
+    return res.json({ 
+      status: 'success', 
+      message: `Data cuaca dengan ID ${id} berhasil diperbarui`,
+      data: result[0] 
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: 'Gagal memperbarui data',
+      error: error.message
+    });
+  }
 };
 
+// 4. HAPUS DATA CUACA (DELETE) - Menghapus data dari Supabase
 exports.deleteWeather = async (req, res) => {
-  const { id } = req.params;
-  return res.json({ 
-    status: 'success (Serverless Mode)', 
-    message: `Data cuaca dengan ID ${id} berhasil dihapus` 
-  });
+  try {
+    const { id } = req.params;
+    
+    await sequelize.query('DELETE FROM weather_logs WHERE id = :id', {
+      replacements: { id },
+      type: sequelize.QueryTypes.DELETE
+    });
+
+    return res.json({ 
+      status: 'success', 
+      message: `Data cuaca dengan ID ${id} berhasil dihapus dari database` 
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: 'Gagal menghapus data',
+      error: error.message
+    });
+  }
 };

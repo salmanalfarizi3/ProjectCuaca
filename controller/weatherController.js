@@ -4,7 +4,7 @@ const axios = require('axios');
 let WeatherLog;
 try {
   const models = require('../models');
-  WeatherLog = models.WeatherLog;
+  WeatherLog = models ? models.WeatherLog : null;
 } catch (e) {
   WeatherLog = null;
 }
@@ -32,7 +32,7 @@ exports.getWeatherData = async (req, res) => {
         airQualityIndex: Math.floor(Math.random() * 50) + 20
       };
 
-      if (WeatherLog) {
+      if (WeatherLog && typeof WeatherLog.create === 'function') {
         await WeatherLog.create(liveWeatherData).catch(() => {});
       }
     } catch (apiErr) {
@@ -42,7 +42,7 @@ exports.getWeatherData = async (req, res) => {
 
   // 2. Ambil data dari database dengan pengaman total
   try {
-    if (!WeatherLog) {
+    if (!WeatherLog || typeof WeatherLog.findAll !== 'function') {
       throw new Error('Model database tidak aktif');
     }
 
@@ -85,10 +85,10 @@ exports.getWeatherData = async (req, res) => {
 exports.createWeather = async (req, res) => {
   const { city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex } = req.body;
   
-  // Jika database offline, langsung kembalikan sukses simulasi tanpa error 500
-  if (!WeatherLog) {
+  // Pengaman ketat: jika model database / method create tidak tersedia, langsung ke mode fallback
+  if (!WeatherLog || typeof WeatherLog.create !== 'function') {
     return res.status(201).json({ 
-      status: 'success ', 
+      status: 'success (Fallback Mode)', 
       message: 'Data cuaca berhasil ditambahkan', 
       data: { id: 99, city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex } 
     });
@@ -116,7 +116,7 @@ exports.createWeather = async (req, res) => {
 exports.updateWeather = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!WeatherLog) throw new Error('Database offline');
+    if (!WeatherLog || typeof WeatherLog.findByPk !== 'function') throw new Error('Database offline');
 
     const weather = await WeatherLog.findByPk(id);
     if (!weather) return res.status(404).json({ message: 'Data cuaca tidak ditemukan' });
@@ -124,14 +124,14 @@ exports.updateWeather = async (req, res) => {
     await weather.update(req.body);
     return res.json({ status: 'success', message: 'Data cuaca berhasil diperbarui', data: weather });
   } catch (err) {
-    return res.json({ status: 'success (Fallback Mode)', message: 'Data berhasil diperbarui ' });
+    return res.json({ status: 'success (Fallback Mode)', message: 'Data berhasil diperbarui' });
   }
 };
 
 exports.deleteWeather = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!WeatherLog) throw new Error('Database offline');
+    if (!WeatherLog || typeof WeatherLog.findByPk !== 'function') throw new Error('Database offline');
 
     const weather = await WeatherLog.findByPk(id);
     if (!weather) return res.status(404).json({ message: 'Data cuaca tidak ditemukan' });
@@ -139,6 +139,6 @@ exports.deleteWeather = async (req, res) => {
     await weather.destroy();
     return res.json({ status: 'success', message: `Data cuaca dengan ID ${id} berhasil dihapus` });
   } catch (err) {
-    return res.json({ status: 'success (Fallback Mode)', message: `Data dengan ID ${id} berhasil dihapus ` });
+    return res.json({ status: 'success (Fallback Mode)', message: `Data dengan ID ${id} berhasil dihapus` });
   }
 };

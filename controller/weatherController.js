@@ -19,7 +19,6 @@ exports.getWeatherData = async (req, res) => {
 
     const data = await WeatherLog.findAll({
       where: filter,
-      limit: 100,
       order: [['id', 'DESC']]
     });
 

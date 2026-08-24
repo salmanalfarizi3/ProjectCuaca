@@ -17,11 +17,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-sequelize.sync().then(() => {
-  console.log('Database connected & synchronized');
-}).catch(err => {
-  console.error('Failed to sync DB:', err);
-});
+
 
 app.use('/api', apiRoutes);
 

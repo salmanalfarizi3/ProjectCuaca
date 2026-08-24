@@ -53,7 +53,7 @@ if (sequelize) {
   try {
     db.User = require('./user')(sequelize, Sequelize.DataTypes);
     db.ApiKey = require('./apikey')(sequelize, Sequelize.DataTypes);
-    db.WeatherLog = require('./weatherLog')(sequelize, Sequelize.DataTypes);
+    db.WeatherLog = require('./weatherlog')(sequelize, Sequelize.DataTypes);
 
     Object.keys(db).forEach(modelName => {
       if (db[modelName].associate) {

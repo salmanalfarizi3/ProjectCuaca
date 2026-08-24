@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cuaca - Terkini </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .glass-input {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-sky-400 via-sky-600 to-indigo-900 text-white min-h-screen pb-12 selection:bg-white/30">
+
+  <div class="max-w-md mx-auto px-4 pt-8 space-y-6">
+    
+    <div class="glass-card rounded-3xl p-4 shadow-2xl">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-xs font-semibold tracking-wider text-white/70 uppercase">Developer API Gateway</span>
+      </div>
+      <div class="space-y-2">
+        <input type="text" id="apiKeyInput" placeholder="Masukkan API Key (sk_live_...)" class="glass-input w-full rounded-2xl px-4 py-2.5 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 transition">
+        <div class="flex gap-2">
+          <input type="text" id="cityInput" placeholder="Cari Kota..." class="glass-input flex-1 rounded-2xl px-4 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 transition">
+          <button onclick="fetchWeatherData()" class="bg-white/20 hover:bg-white/30 active:scale-95 text-white font-medium px-5 py-2 rounded-2xl transition text-sm backdrop-blur-md">
+            Cari
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="heroSection" class="text-center py-6 space-y-1">
+      <h1 id="heroCity" class="text-3xl font-medium tracking-tight">Yogyakarta</h1>
+      <div id="heroTemp" class="text-8xl font-extralight tracking-tighter my-1">28°</div>
+      <p id="heroCondition" class="text-lg font-medium text-white/90">Cerah Berawan</p>
+      <div id="heroHighLow" class="text-sm font-medium text-white/80 space-x-2">
+        <span>Kualitas Udara: Baik</span>
+      </div>
+    </div>
+
+    <div id="weatherOutput" class="space-y-3">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="glass-card rounded-3xl p-4 space-y-2">
+          <div class="flex items-center gap-1.5 text-xs text-white/70 font-medium">
+            <span>💧 KELEMBABAN</span>
+          </div>
+          <p id="humidityVal" class="text-2xl font-semibold">75%</p>
+          <p class="text-xs text-white/60">Titik embun normal hari ini.</p>
+        </div>
+        <div class="glass-card rounded-3xl p-4 space-y-2">
+          <div class="flex items-center gap-1.5 text-xs text-white/70 font-medium">
+            <span>💨 ANGIN</span>
+          </div>
+          <p id="windVal" class="text-2xl font-semibold">12 km/h</p>
+          <p class="text-xs text-white/60">Hembusan angin sepoi-sepoi.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="glass-card rounded-3xl p-4 space-y-2">
+          <div class="flex items-center gap-1.5 text-xs text-white/70 font-medium">
+            <span>☀️ INDEKS UV</span>
+          </div>
+          <p class="text-2xl font-semibold">3 <span class="text-xs font-normal text-white/70">Sedang</span></p>
+          <p class="text-[11px] text-white/60">Gunakan tabir surya jam 11:00 - 15:00.</p>
+        </div>
+
+        <div class="glass-card rounded-3xl p-4 space-y-2">
+          <div class="flex items-center gap-1.5 text-xs text-white/70 font-medium">
+            <span>👁️ JARAK PANDANG</span>
+          </div>
+          <p class="text-2xl font-semibold">10 <span class="text-xs font-normal text-white/70">km</span></p>
+          <p class="text-[11px] text-white/60">Jarak pandang sangat jelas.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    async function fetchWeatherData() {
+      const apiKey = document.getElementById('apiKeyInput').value.trim();
+      const city = document.getElementById('cityInput').value.trim();
+      
+      if (!apiKey) {
+        alert('Masukkan API Key terlebih dahulu!');
+        return;
+      }
+
+      try {
+        const endpoint = city ? `/api/v1/weather?city=${encodeURIComponent(city)}` : '/api/v1/weather';
+        const res = await fetch(endpoint, { headers: { 'x-api-key': apiKey } });
+        const result = await res.json();
+
+        if (!res.ok) {
+          alert(result.message || 'Gagal mengambil data');
+          return;
+        }
+
+        if (!result.data || result.data.length === 0) {
+          alert('Data cuaca tidak ditemukan');
+          return;
+        }
+
+        const data = result.data[0];
+        document.getElementById('heroCity').innerText = data.city;
+        document.getElementById('heroTemp').innerText = `${Math.round(data.temperature)}°`;
+        document.getElementById('heroCondition').innerText = data.weatherCondition || 'Cerah';
+        document.getElementById('humidityVal').innerText = `${data.humidity || 0}%`;
+        document.getElementById('windVal').innerText = `${data.windSpeed || 0} km/h`;
+        document.getElementById('heroHighLow').innerText = `AQI: ${data.airQualityIndex || 'Baik'}`;
+
+      } catch (err) {
+        alert('Terjadi kesalahan koneksi server.');
+      }
+    }
+  </script>
+</body>
+</html>

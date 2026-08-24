@@ -1,28 +1,23 @@
-const { sequelize } = require('../models');
+const { WeatherLog } = require('../models');
 
-// 1. AMBIL DATA CUACA (GET) - Terhubung langsung ke Supabase
+// 1. AMBIL DATA CUACA (GET) - Menggunakan ORM Sequelize
 exports.getWeatherData = async (req, res) => {
   try {
     const { city, condition } = req.query;
-    
-    let query = 'SELECT * FROM weather_logs WHERE 1=1';
-    let replacements = {};
+    let filter = {};
 
     if (city) {
-      query += ' AND city ILIKE :city';
-      replacements.city = `%${city}%`;
+      filter.city = city; // atau sesuaikan jika mau pakai operator Op.iLike
     }
 
     if (condition) {
-      query += ' AND "weatherCondition" ILIKE :condition';
-      replacements.condition = `%${condition}%`;
+      filter.weatherCondition = condition;
     }
 
-    query += ' ORDER BY id DESC LIMIT 50';
-
-    const data = await sequelize.query(query, {
-      replacements: replacements,
-      type: sequelize.QueryTypes.SELECT
+    const data = await WeatherLog.findAll({
+      where: filter,
+      limit: 50,
+      order: [['id', 'DESC']]
     });
 
     return res.status(200).json({
@@ -40,34 +35,25 @@ exports.getWeatherData = async (req, res) => {
   }
 };
 
-// 2. TAMBAH DATA CUACA (POST) - Masuk langsung ke Supabase
+// 2. TAMBAH DATA CUACA (POST) - Menggunakan ORM Sequelize
 exports.createWeather = async (req, res) => {
   try {
     const { city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex } = req.body;
     
-    const query = `
-      INSERT INTO weather_logs (city, country, temperature, humidity, "windSpeed", "weatherCondition", "airQualityIndex", "createdAt", "updatedAt")
-      VALUES (:city, :country, :temperature, :humidity, :windSpeed, :weatherCondition, :airQualityIndex, NOW(), NOW())
-      RETURNING *;
-    `;
-
-    const result = await sequelize.query(query, {
-      replacements: { 
-        city: city || 'Yogyakarta', 
-        country: country || 'ID', 
-        temperature: temperature || 28.0, 
-        humidity: humidity || 70, 
-        windSpeed: windSpeed || 3.0, 
-        weatherCondition: weatherCondition || 'Clear', 
-        airQualityIndex: airQualityIndex || 30 
-      },
-      type: sequelize.QueryTypes.INSERT
+    const newWeather = await WeatherLog.create({
+      city: city || 'Yogyakarta',
+      country: country || 'ID',
+      temperature: temperature || 28.0,
+      humidity: humidity || 70,
+      windSpeed: windSpeed || 3.0,
+      weatherCondition: weatherCondition || 'Clear',
+      airQualityIndex: airQualityIndex || 30
     });
 
     return res.status(201).json({ 
       status: 'success', 
       message: 'Data cuaca berhasil ditambahkan ke database', 
-      data: result[0] 
+      data: newWeather 
     });
   } catch (error) {
     return res.status(500).json({
@@ -78,35 +64,22 @@ exports.createWeather = async (req, res) => {
   }
 };
 
-// 3. UPDATE DATA CUACA (PUT) - Memperbarui data di Supabase
+// 3. UPDATE DATA CUACA (PUT) - Menggunakan ORM Sequelize
 exports.updateWeather = async (req, res) => {
   try {
     const { id } = req.params;
-    const { city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex } = req.body;
+    const record = await WeatherLog.findByPk(id);
 
-    const query = `
-      UPDATE weather_logs 
-      SET city = COALESCE(:city, city),
-          country = COALESCE(:country, country),
-          temperature = COALESCE(:temperature, temperature),
-          humidity = COALESCE(:humidity, humidity),
-          "windSpeed" = COALESCE(:windSpeed, "windSpeed"),
-          "weatherCondition" = COALESCE(:weatherCondition, "weatherCondition"),
-          "airQualityIndex" = COALESCE(:airQualityIndex, "airQualityIndex"),
-          "updatedAt" = NOW()
-      WHERE id = :id
-      RETURNING *;
-    `;
+    if (!record) {
+      return res.status(404).json({ status: 'error', message: 'Data tidak ditemukan' });
+    }
 
-    const result = await sequelize.query(query, {
-      replacements: { id, city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex },
-      type: sequelize.QueryTypes.UPDATE
-    });
+    await record.update(req.body);
 
     return res.json({ 
       status: 'success', 
       message: `Data cuaca dengan ID ${id} berhasil diperbarui`,
-      data: result[0] 
+      data: record 
     });
   } catch (error) {
     return res.status(500).json({
@@ -117,15 +90,17 @@ exports.updateWeather = async (req, res) => {
   }
 };
 
-// 4. HAPUS DATA CUACA (DELETE) - Menghapus data dari Supabase
+// 4. HAPUS DATA CUACA (DELETE) - Menggunakan ORM Sequelize
 exports.deleteWeather = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    await sequelize.query('DELETE FROM weather_logs WHERE id = :id', {
-      replacements: { id },
-      type: sequelize.QueryTypes.DELETE
-    });
+    const record = await WeatherLog.findByPk(id);
+
+    if (!record) {
+      return res.status(404).json({ status: 'error', message: 'Data tidak ditemukan' });
+    }
+
+    await record.destroy();
 
     return res.json({ 
       status: 'success', 

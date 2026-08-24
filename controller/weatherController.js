@@ -1,18 +1,36 @@
-const { WeatherLog } = require('../models');
+const { Sequelize, DataTypes } = require('sequelize');
 
-// 1. AMBIL DATA CUACA (GET) - Menggunakan ORM Sequelize
+// Inisialisasi koneksi langsung dari environment Vercel/Supabase
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  logging: false,
+  dialectOptions: {
+    ssl: { require: true, rejectUnauthorized: false }
+  }
+});
+
+// Definisikan model WeatherLog secara langsung di sini agar aman
+const WeatherLog = sequelize.define('WeatherLog', {
+  city: { type: DataTypes.STRING, allowNull: false },
+  country: { type: DataTypes.STRING, allowNull: false },
+  temperature: { type: DataTypes.DECIMAL(4, 1), allowNull: false },
+  humidity: { type: DataTypes.INTEGER, allowNull: false },
+  windSpeed: { type: DataTypes.DECIMAL(4, 1), allowNull: false },
+  weatherCondition: { type: DataTypes.STRING, allowNull: false },
+  airQualityIndex: { type: DataTypes.INTEGER, allowNull: false }
+}, {
+  tableName: 'weather_logs',
+  timestamps: true
+});
+
+// 1. AMBIL DATA CUACA (GET)
 exports.getWeatherData = async (req, res) => {
   try {
     const { city, condition } = req.query;
     let filter = {};
 
-    if (city) {
-      filter.city = city; // atau sesuaikan jika mau pakai operator Op.iLike
-    }
-
-    if (condition) {
-      filter.weatherCondition = condition;
-    }
+    if (city) filter.city = city;
+    if (condition) filter.weatherCondition = condition;
 
     const data = await WeatherLog.findAll({
       where: filter,
@@ -25,7 +43,6 @@ exports.getWeatherData = async (req, res) => {
       total_records: data.length,
       data: data
     });
-
   } catch (error) {
     return res.status(500).json({
       status: 'error',
@@ -35,7 +52,7 @@ exports.getWeatherData = async (req, res) => {
   }
 };
 
-// 2. TAMBAH DATA CUACA (POST) - Menggunakan ORM Sequelize
+// 2. TAMBAH DATA CUACA (POST)
 exports.createWeather = async (req, res) => {
   try {
     const { city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex } = req.body;
@@ -64,7 +81,7 @@ exports.createWeather = async (req, res) => {
   }
 };
 
-// 3. UPDATE DATA CUACA (PUT) - Menggunakan ORM Sequelize
+// 3. UPDATE DATA CUACA (PUT)
 exports.updateWeather = async (req, res) => {
   try {
     const { id } = req.params;
@@ -90,7 +107,7 @@ exports.updateWeather = async (req, res) => {
   }
 };
 
-// 4. HAPUS DATA CUACA (DELETE) - Menggunakan ORM Sequelize
+// 4. HAPUS DATA CUACA (DELETE)
 exports.deleteWeather = async (req, res) => {
   try {
     const { id } = req.params;

@@ -14,49 +14,55 @@ try {
 let sequelize = null;
 
 try {
-  if (process.env.DATABASE_URL) {
-    sequelize = new Sequelize(process.env.DATABASE_URL, {
+  const connectionString = process.env.DATABASE_URL || config.use_env_variable ? process.env[config.use_env_variable] : null;
+
+  if (connectionString) {
+    sequelize = new Sequelize(connectionString, {
       dialect: 'postgres',
       logging: false,
-      dialectOptions: { connectTimeout: 2000 }
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        },
+        connectTimeout: 10000
+      }
     });
-  } 
-  else if (config.use_env_variable && process.env[config.use_env_variable]) {
-    sequelize = new Sequelize(process.env[config.use_env_variable], config);
-  } 
-  else {
+  } else {
     const dbName = process.env.DB_DATABASE || config.database || 'akhir';
     const dbUser = process.env.DB_USER || config.username || 'postgres';
     const dbPass = process.env.DB_PASS || config.password || '2025';
     const dbHost = process.env.DB_HOST || config.host || 'localhost';
     const dbPort = process.env.DB_PORT || config.port || 5432;
-    const dbDialect = process.env.DB_DIALECT || config.dialect || 'postgres';
 
     sequelize = new Sequelize(dbName, dbUser, dbPass, {
       host: dbHost,
       port: dbPort,
-      dialect: dbDialect,
+      dialect: 'postgres',
       logging: false,
-      dialectOptions: { connectTimeout: 2000 }
+      dialectOptions: { connectTimeout: 10000 }
     });
   }
 } catch (err) {
-  console.error('Failed to initialize Sequelize:', err);
+  console.error('Failed to initialize Sequelize connection:', err);
 }
 
 const db = {};
 
-// Load model secara manual agar aman di Vercel Serverless
 if (sequelize) {
-  db.User = require('./user')(sequelize, Sequelize.DataTypes);
-  db.ApiKey = require('./apikey')(sequelize, Sequelize.DataTypes);
-  db.WeatherLog = require('./weatherLog')(sequelize, Sequelize.DataTypes);
+  try {
+    db.User = require('./user')(sequelize, Sequelize.DataTypes);
+    db.ApiKey = require('./apikey')(sequelize, Sequelize.DataTypes);
+    db.WeatherLog = require('./weatherLog')(sequelize, Sequelize.DataTypes);
 
-  Object.keys(db).forEach(modelName => {
-    if (db[modelName].associate) {
-      db[modelName].associate(db);
-    }
-  });
+    Object.keys(db).forEach(modelName => {
+      if (db[modelName].associate) {
+        db[modelName].associate(db);
+      }
+    });
+  } catch (modelErr) {
+    console.error('Error loading models:', modelErr);
+  }
 }
 
 db.sequelize = sequelize;

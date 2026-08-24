@@ -1,31 +1,16 @@
-const { Sequelize, DataTypes } = require('sequelize');
-
-// Inisialisasi koneksi langsung dari environment Vercel/Supabase
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: 'postgres',
-  logging: false,
-  dialectOptions: {
-    ssl: { require: true, rejectUnauthorized: false }
-  }
-});
-
-// Definisikan model WeatherLog secara langsung di sini agar aman
-const WeatherLog = sequelize.define('WeatherLog', {
-  city: { type: DataTypes.STRING, allowNull: false },
-  country: { type: DataTypes.STRING, allowNull: false },
-  temperature: { type: DataTypes.DECIMAL(4, 1), allowNull: false },
-  humidity: { type: DataTypes.INTEGER, allowNull: false },
-  windSpeed: { type: DataTypes.DECIMAL(4, 1), allowNull: false },
-  weatherCondition: { type: DataTypes.STRING, allowNull: false },
-  airQualityIndex: { type: DataTypes.INTEGER, allowNull: false }
-}, {
-  tableName: 'weather_logs',
-  timestamps: true
-});
+const db = require('../models');
+const WeatherLog = db.WeatherLog;
 
 // 1. AMBIL DATA CUACA (GET)
 exports.getWeatherData = async (req, res) => {
   try {
+    if (!WeatherLog) {
+      return res.status(500).json({
+        status: 'error',
+        message: 'Model WeatherLog tidak tersedia'
+      });
+    }
+
     const { city, condition } = req.query;
     let filter = {};
 
@@ -34,7 +19,7 @@ exports.getWeatherData = async (req, res) => {
 
     const data = await WeatherLog.findAll({
       where: filter,
-      limit: 50,
+      limit: 100,
       order: [['id', 'DESC']]
     });
 

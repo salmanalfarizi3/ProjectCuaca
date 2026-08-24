@@ -1,6 +1,7 @@
 'use strict';
 
 const Sequelize = require('sequelize');
+const pg = require('pg'); // <-- 1. Import pg secara eksplisit agar terbaca oleh Vercel
 const process = require('process');
 const env = process.env.NODE_ENV || 'development';
 
@@ -14,11 +15,12 @@ try {
 let sequelize = null;
 
 try {
-  const connectionString = process.env.DATABASE_URL || config.use_env_variable ? process.env[config.use_env_variable] : null;
+  const connectionString = process.env.DATABASE_URL || (config.use_env_variable ? process.env[config.use_env_variable] : null);
 
   if (connectionString) {
     sequelize = new Sequelize(connectionString, {
       dialect: 'postgres',
+      dialectModule: pg, // <-- 2. Paksa Sequelize menggunakan modul pg ini
       logging: false,
       dialectOptions: {
         ssl: {
@@ -39,6 +41,7 @@ try {
       host: dbHost,
       port: dbPort,
       dialect: 'postgres',
+      dialectModule: pg, // <-- 3. Tambahkan di koneksi lokal juga
       logging: false,
       dialectOptions: { connectTimeout: 10000 }
     });

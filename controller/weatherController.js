@@ -15,18 +15,16 @@ exports.getWeatherData = async (req, res) => {
       const wData = response.data;
 
       liveWeatherData = {
-        id: Date.now(),
         city: wData.name,
         country: wData.sys?.country || 'ID',
         temperature: wData.main.temp,
         humidity: wData.main.humidity,
         windSpeed: wData.wind.speed,
         weatherCondition: wData.weather[0].main,
-        airQualityIndex: Math.floor(Math.random() * 50) + 20,
-        createdAt: new Date()
+        airQualityIndex: Math.floor(Math.random() * 50) + 20
       };
 
-      if (WeatherLog && WeatherLog.create) {
+      if (WeatherLog) {
         await WeatherLog.create(liveWeatherData).catch(() => {});
       }
     } catch (apiErr) {
@@ -35,6 +33,8 @@ exports.getWeatherData = async (req, res) => {
   }
 
   try {
+    if (!WeatherLog) throw new Error('Database model WeatherLog tidak tersedia');
+
     let whereClause = {};
     if (city) whereClause.city = { [Op.iLike]: `%${city}%` };
     if (condition) whereClause.weatherCondition = { [Op.iLike]: `%${condition}%` };
@@ -54,13 +54,10 @@ exports.getWeatherData = async (req, res) => {
     });
 
   } catch (err) {
-    const resultData = liveWeatherData ? [liveWeatherData] : [];
-    
-    return res.json({
-      status: 'success',
-      total_records: resultData.length,
-      data: resultData,
-      note: 'Database offline, menyajikan data live API'
+    return res.status(500).json({
+      status: 'error',
+      message: 'Gagal mengambil data dari database',
+      error: err.message
     });
   }
 };
@@ -68,40 +65,60 @@ exports.getWeatherData = async (req, res) => {
 exports.createWeather = async (req, res) => {
   try {
     const { city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex } = req.body;
-    if (!WeatherLog) throw new Error("DB offline");
+    if (!WeatherLog) throw new Error("Database offline");
 
     const newWeather = await WeatherLog.create({
       city, country, temperature, humidity, windSpeed, weatherCondition, airQualityIndex
     });
 
-    return res.status(201).json({ status: 'success', message: 'Data cuaca berhasil ditambahkan', data: newWeather });
+    return res.status(201).json({ 
+      status: 'success', 
+      message: 'Data cuaca berhasil ditambahkan ke database', 
+      data: newWeather 
+    });
   } catch (err) {
-    return res.status(200).json({ status: 'success', message: 'Simulasi simpan data (DB offline)' });
+    return res.status(500).json({ 
+      status: 'error', 
+      message: 'Gagal menyimpan data cuaca', 
+      error: err.message 
+    });
   }
 };
 
 exports.updateWeather = async (req, res) => {
   try {
     const { id } = req.params;
+    if (!WeatherLog) throw new Error("Database offline");
+
     const weather = await WeatherLog.findByPk(id);
     if (!weather) return res.status(404).json({ message: 'Data cuaca tidak ditemukan' });
 
     await weather.update(req.body);
     return res.json({ status: 'success', message: 'Data cuaca berhasil diperbarui', data: weather });
   } catch (err) {
-    return res.status(200).json({ status: 'success', message: 'Simulasi update data (DB offline)' });
+    return res.status(500).json({ 
+      status: 'error', 
+      message: 'Gagal memperbarui data cuaca', 
+      error: err.message 
+    });
   }
 };
 
 exports.deleteWeather = async (req, res) => {
   try {
     const { id } = req.params;
+    if (!WeatherLog) throw new Error("Database offline");
+
     const weather = await WeatherLog.findByPk(id);
     if (!weather) return res.status(404).json({ message: 'Data cuaca tidak ditemukan' });
 
     await weather.destroy();
     return res.json({ status: 'success', message: `Data cuaca dengan ID ${id} berhasil dihapus` });
   } catch (err) {
-    return res.status(200).json({ status: 'success', message: 'Simulasi hapus data (DB offline)' });
+    return res.status(500).json({ 
+      status: 'error', 
+      message: 'Gagal menghapus data cuaca', 
+      error: err.message 
+    });
   }
 };

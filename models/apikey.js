@@ -8,13 +8,24 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   ApiKey.init({
-    userId: { type: DataTypes.INTEGER, allowNull: false },
-    apiKey: { type: DataTypes.STRING, allowNull: false, unique: true },
+    userId: { 
+      type: DataTypes.INTEGER, 
+      allowNull: false,
+      field: 'userid' // Memetakan atribut userId ke kolom 'userid' di Supabase
+    },
+    key: { 
+      type: DataTypes.STRING, 
+      allowNull: false, 
+      unique: true,
+      field: 'key' // Atau sesuaikan dengan nama kolom key/apikey di Supabase kamu
+    },
     status: { type: DataTypes.STRING, defaultValue: 'active' }
   }, {
     sequelize,
     modelName: 'ApiKey',
-    tableName: 'api_keys'
+    tableName: 'apikeys', // Nama tabel tanpa underscore di Supabase
+    createdAt: 'createdat',
+    updatedAt: 'updatedat'
   });
   return ApiKey;
 };

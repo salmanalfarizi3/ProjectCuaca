@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     airQualityIndex: { type: DataTypes.INTEGER, allowNull: false }
   }, {
     sequelize,
-    modelName: 'WeatherLog',
+    modelName: 'weatherLog',
     tableName: 'weather_logs'
   });
   return WeatherLog;

@@ -7,7 +7,7 @@ exports.getWeatherData = async (req, res) => {
     if (!WeatherLog) {
       return res.status(500).json({
         status: 'error',
-        message: 'Model WeatherLog tidak tersedia'
+        message: 'Model WeatherLog tidak tersedia di dalam objek db'
       });
     }
 
@@ -28,10 +28,12 @@ exports.getWeatherData = async (req, res) => {
       data: data
     });
   } catch (error) {
+    // Ditambahkan stack error agar tampil di Postman
     return res.status(500).json({
       status: 'error',
       message: 'Gagal mengambil data dari database',
-      error: error.message
+      error: error.message,
+      stack: error.stack
     });
   }
 };
@@ -60,7 +62,8 @@ exports.createWeather = async (req, res) => {
     return res.status(500).json({
       status: 'error',
       message: 'Gagal menyimpan data ke database',
-      error: error.message
+      error: error.message,
+      stack: error.stack
     });
   }
 };
@@ -86,7 +89,8 @@ exports.updateWeather = async (req, res) => {
     return res.status(500).json({
       status: 'error',
       message: 'Gagal memperbarui data',
-      error: error.message
+      error: error.message,
+      stack: error.stack
     });
   }
 };
@@ -111,7 +115,8 @@ exports.deleteWeather = async (req, res) => {
     return res.status(500).json({
       status: 'error',
       message: 'Gagal menghapus data',
-      error: error.message
+      error: error.message,
+      stack: error.stack
     });
   }
 };

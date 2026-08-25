@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
   }
+  
   ApiKey.init({
     userid: { 
       type: DataTypes.INTEGER, 
@@ -28,9 +29,11 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'ApiKey',
     tableName: 'apikeys', 
+    underscored: true, 
     timestamps: true,
     createdAt: 'createdat',
     updatedAt: 'updatedat'
   });
+  
   return ApiKey;
 };

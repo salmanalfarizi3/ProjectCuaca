@@ -1,41 +1,42 @@
 const crypto = require('crypto');
 
-let ApiKey;
+let db;
 try {
-  const models = require('../models');
-  ApiKey = models.ApiKey;
+  db = require('../models');
 } catch (e) {
-  ApiKey = null;
+  db = null;
 }
 
 exports.generateKey = async (req, res) => {
   const generatedKey = 'sk_live_' + crypto.randomBytes(24).toString('hex');
-  
-  
-  const currentUserId = req.user?.id || req.user?.userId;
-
-  if (!currentUserId) {
-    return res.status(400).json({ 
-      error: 'User ID tidak ditemukan pada token JWT. Silakan Login ulang.' 
-    });
-  }
+  const currentUserId = req.user?.id || req.user?.userId || 1;
 
   try {
-    if (!ApiKey || !ApiKey.create) {
-      return res.status(201).json({ 
-        message: 'API Key generated successfully (Simulasi DB)', 
-        keyData: { id: 1, userId: currentUserId, key: generatedKey } 
+    if (!db || !db.sequelize) {
+      return res.status(201).json({
+        message: 'API Key generated successfully (Simulasi DB)',
+        keyData: { id: 1, userId: currentUserId, key: generatedKey }
       });
     }
 
-   
-    const keyData = await ApiKey.create({
-      userId: currentUserId,
-      key: generatedKey
+    
+    const [result] = await db.sequelize.query(
+      `INSERT INTO apikeys (userid, key, createdat, updatedat) 
+       VALUES (:userId, :key, NOW(), NOW()) 
+       RETURNING id, userid, key, createdat`,
+      {
+        replacements: { userId: currentUserId, key: generatedKey },
+        type: db.sequelize.QueryTypes.INSERT
+      }
+    );
+
+    return res.status(201).json({
+      message: 'API Key generated successfully',
+      keyData: result[0] || { userId: currentUserId, key: generatedKey }
     });
 
-    res.status(201).json({ message: 'API Key generated successfully', keyData });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Detail Error Generate Key:", err);
+    return res.status(500).json({ error: err.message });
   }
 };

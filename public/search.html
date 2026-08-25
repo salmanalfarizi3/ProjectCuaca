@@ -3,95 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pencarian Cuaca Destinasi - SaaS App</title>
+  <title>Pencarian Cuaca Destinasi - TravelWeather SaaS</title>
   <script src="https://cdn.tailwindcss.com"></script>
+ 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.1);
+    
+    .ios-glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    .ios-card {
+      background: rgba(255, 255, 255, 0.07);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
     }
-    .glass-input {
-      background: rgba(0, 0, 0, 0.25);
+    .ios-input {
+      background: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(15px);
       border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+    .ios-input::placeholder {
+      color: #94a3b8;
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-sky-900 to-indigo-950 text-white min-h-screen pb-12 p-4 selection:bg-sky-500 selection:text-white">
+<body class="bg-gradient-to-b from-[#0b192c] via-[#082f49] to-[#020617] text-white min-h-screen pb-12 p-4 selection:bg-sky-500 selection:text-white">
 
-  <div class="max-w-md mx-auto pt-8 space-y-6">
+  <div class="max-w-md mx-auto pt-6 space-y-5">
     
-    
-    <div class="flex justify-between items-center">
-      <a href="index.html" class="text-xs text-sky-300 hover:underline">← Beranda Utama</a>
-      <a href="auth.html" class="text-xs text-sky-300 hover:underline">Portal Partner (API Key) →</a>
+    <!-- Navigasi Atas -->
+    <div class="flex justify-between items-center px-2">
+      <a href="index.html" class="text-xs font-semibold text-slate-300 hover:text-white transition">← Beranda Utama</a>
+      <a href="auth.html" class="text-xs font-semibold text-slate-300 hover:text-white transition">Portal Partner (API Key) →</a>
     </div>
 
-    
-    <div class="glass-card rounded-3xl p-6 shadow-2xl space-y-4">
+    <!-- Kotak Pencarian -->
+    <div class="ios-card rounded-[32px] p-6 space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
-        <h2 class="text-xs font-semibold uppercase tracking-wider text-sky-300">Cek Cuaca Destinasi</h2>
-        <span id="authStatus" class="text-[10px] bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full font-mono">Memeriksa API Key...</span>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-sky-400">Cek Cuaca Destinasi</h2>
+        <span id="authStatus" class="text-[10px] bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full font-mono font-semibold">Memeriksa API Key...</span>
       </div>
       
       <div>
-        <label class="text-xs text-slate-200 block mb-1.5 font-medium">Nama Kota / Destinasi Wisata:</label>
+        <label class="text-xs text-slate-300 block mb-1.5 font-medium">Nama Kota / Destinasi Wisata:</label>
         <div class="flex gap-2">
-          <input type="text" id="cityInput" placeholder="Contoh: Yogyakarta, Jakarta..." class="glass-input flex-1 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400">
-          <button onclick="fetchWeatherData()" class="bg-sky-500 hover:bg-sky-400 text-white font-semibold px-5 py-3 rounded-xl transition text-sm shadow-lg shadow-sky-500/25">
+          <input type="text" id="cityInput" placeholder="Contoh: Yogyakarta, Purworejo..." class="ios-input flex-1 rounded-[16px] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
+          <button onclick="fetchWeatherData()" class="bg-sky-500 hover:bg-sky-400 text-white font-semibold px-5 py-3 rounded-[16px] transition text-sm shadow-lg shadow-sky-500/25">
             Cari
           </button>
         </div>
       </div>
     </div>
 
-    
-    <div class="glass-card rounded-3xl p-6 text-center space-y-3 shadow-xl">
-      <div class="inline-block px-3 py-1 rounded-full bg-sky-500/10 text-xs font-medium text-sky-300 border border-sky-400/20">
+    <!-- Kartu Hasil Utama -->
+    <div class="ios-card rounded-[32px] p-6 text-center space-y-3">
+      <div class="inline-block px-3 py-1 rounded-full bg-sky-500/15 text-xs font-semibold text-sky-300 border border-sky-400/20">
         🗺️ Destinasi Wisata Terpilih
       </div>
-      
       
       <div id="tourStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
         <span>🟢</span> Status Tour: Aman / Kondusif
       </div>
 
-      <h1 id="heroCity" class="text-3xl font-bold tracking-tight">Yogyakarta</h1>
-      <div id="heroTemp" class="text-7xl font-extralight tracking-tighter my-2 text-sky-200">28°C</div>
-      <p id="heroCondition" class="text-xs text-slate-300 font-medium">Cerah & Nyaman untuk Wisata Outdoor</p>
+      <h1 id="heroCity" class="text-3xl font-bold tracking-tight text-white">Yogyakarta</h1>
+      <div id="heroTemp" class="text-7xl font-extralight tracking-tighter my-2 text-sky-300">28°C</div>
+      <p id="heroCondition" class="text-xs text-slate-300 font-medium">Kondisi: Memuat data...</p>
     </div>
 
-    
+    <!-- Grid Informasi Tambahan -->
     <div class="grid grid-cols-2 gap-3">
-      <div class="glass-card rounded-2xl p-4 space-y-1">
-        <span class="text-[10px] text-slate-400 font-semibold tracking-wider">💧 KELEMBABAN</span>
-        <p id="humidityVal" class="text-xl font-bold">75%</p>
-        <p class="text-[10px] text-slate-400">Nyaman untuk jalan-jalan.</p>
+      <div class="ios-card rounded-[24px] p-4 space-y-1">
+        <span class="text-[10px] text-slate-400 font-bold tracking-wider">💧 KELEMBABAN</span>
+        <p id="humidityVal" class="text-xl font-bold text-white">-</p>
+        <p class="text-[10px] text-slate-400">Kelembaban udara.</p>
       </div>
-      <div class="glass-card rounded-2xl p-4 space-y-1">
-        <span class="text-[10px] text-slate-400 font-semibold tracking-wider">💨 ANGIN</span>
-        <p id="windVal" class="text-xl font-bold">12 km/h</p>
-        <p class="text-[10px] text-slate-400">Sejuk, angin sepoi-sepoi.</p>
+      <div class="ios-card rounded-[24px] p-4 space-y-1">
+        <span class="text-[10px] text-slate-400 font-bold tracking-wider">💨 ANGIN & AQI</span>
+        <p id="windVal" class="text-xl font-bold text-white">-</p>
+        <p id="aqiText" class="text-[10px] text-slate-400">AQI: -</p>
       </div>
     </div>
 
   </div>
 
   <script>
+    
+    const SUPABASE_URL = 'https://url-project-supabase-kamu.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6...'; 
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     window.onload = function() {
       const savedApiKey = localStorage.getItem('saas_api_key');
       const statusBadge = document.getElementById('authStatus');
       
       if (savedApiKey) {
-        statusBadge.innerText = "API Key Aktif (Authorized)";
-        statusBadge.className = "text-[10px] bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full font-mono";
+        statusBadge.innerText = "API Key Aktif";
+        statusBadge.className = "text-[10px] bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full font-mono font-semibold";
       } else {
         statusBadge.innerText = "Belum Ada API Key";
-        statusBadge.className = "text-[10px] bg-rose-500/20 text-rose-300 px-2.5 py-1 rounded-full font-mono";
+        statusBadge.className = "text-[10px] bg-rose-500/20 text-rose-300 px-2.5 py-1 rounded-full font-mono font-semibold";
       }
     };
 
@@ -111,6 +130,26 @@
       }
 
       try {
+        let { data: dbData, error: dbError } = await supabaseClient
+          .from('nama_tabel_kamu') 
+          .select('*')
+          .ilike('city', `%${cityName}%`)
+          .limit(1);
+
+        if (!dbError && dbData && dbData.length > 0) {
+          const item = dbData[0];
+          
+          document.getElementById('heroCity').innerText = `${item.city}, ${item.country || 'ID'}`;
+          document.getElementById('heroTemp').innerText = `${item.temperature}°C`;
+          document.getElementById('humidityVal').innerText = `${item.humidity}%`;
+          document.getElementById('windVal').innerText = `${item.windSpeed} km/h`;
+          document.getElementById('heroCondition').innerText = `Kondisi: ${item.weatherCondition}`;
+          document.getElementById('aqiText').innerText = `Indeks Kualitas Udara (AQI): ${item.airQualityIndex}`;
+
+          updateTourStatus(item.windSpeed);
+          return; 
+        }
+
         const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=id&format=json`;
         const geoResponse = await fetch(geoUrl);
         const geoData = await geoResponse.json();
@@ -126,33 +165,32 @@
         const weatherData = await weatherResponse.json();
         const current = weatherData.current;
 
-        
         document.getElementById('heroCity').innerText = `${location.name}, ${location.country || ''}`;
         document.getElementById('heroTemp').innerText = `${Math.round(current.temperature_2m)}°C`;
         document.getElementById('humidityVal').innerText = `${current.relative_humidity_2m}%`;
         document.getElementById('windVal').innerText = `${current.wind_speed_10m} km/h`;
+        document.getElementById('heroCondition').innerText = "Kondisi: Cerah (Live API)";
+        document.getElementById('aqiText').innerText = "Indeks Kualitas Udara (AQI): N/A";
 
-        
-        const windSpeed = current.wind_speed_10m;
-        const tourBadge = document.getElementById('tourStatusBadge');
-
-        if (windSpeed > 30) {
-          tourBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30";
-          tourBadge.innerHTML = "<span>🔴</span> Status Tour: Berbahaya / Angin Kencang";
-          document.getElementById('heroCondition').innerText = "Peringatan: Angin kencang, tidak disarankan untuk aktivitas outdoor.";
-        } else if (windSpeed > 20) {
-          tourBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30";
-          tourBadge.innerHTML = "<span>🟡</span> Status Tour: Waspada / Cukup Berangin";
-          document.getElementById('heroCondition').innerText = "Kondisi cukup berangin, harap berhati-hati untuk wisata luar ruangan.";
-        } else {
-          tourBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
-          tourBadge.innerHTML = "<span>🟢</span> Status Tour: Aman / Sangat Kondusif";
-          document.getElementById('heroCondition').innerText = "Cuaca bersahabat, sangat aman untuk jadwal tour.";
-        }
+        updateTourStatus(current.wind_speed_10m);
 
       } catch (error) {
         console.error(error);
-        alert("Gagal terhubung ke server.");
+        alert("Gagal terhubung ke database.");
+      }
+    }
+
+    function updateTourStatus(windSpeed) {
+      const tourBadge = document.getElementById('tourStatusBadge');
+      if (windSpeed > 30) {
+        tourBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/25 text-rose-300 border border-rose-500/30";
+        tourBadge.innerHTML = "<span>🔴</span> Status Tour: Berbahaya / Angin Kencang";
+      } else if (windSpeed > 20) {
+        tourBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/25 text-amber-300 border border-amber-500/30";
+        tourBadge.innerHTML = "<span>🟡</span> Status Tour: Waspada / Cukup Berangin";
+      } else {
+        tourBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/25 text-emerald-300 border border-emerald-500/30";
+        tourBadge.innerHTML = "<span>🟢</span> Status Tour: Aman / Sangat Kondusif";
       }
     }
   </script>

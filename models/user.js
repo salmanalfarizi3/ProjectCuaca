@@ -2,21 +2,20 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
+  class ApiKey extends Model {
     static associate(models) {
-      User.hasMany(models.ApiKey, { foreignKey: 'userId', as: 'apiKeys' });
+      ApiKey.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
     }
   }
-  User.init({
-    username: { type: DataTypes.STRING, allowNull: false, unique: true },
-    email: { type: DataTypes.STRING, allowNull: false, unique: true },
-    password: { type: DataTypes.STRING, allowNull: false }
+  ApiKey.init({
+    key: { type: DataTypes.STRING, allowNull: false, unique: true },
+    userId: { type: DataTypes.INTEGER, allowNull: false }
   }, {
     sequelize,
-    modelName: 'User',
-    tableName: 'users',
+    modelName: 'ApiKey',
+    tableName: 'apikeys', // Sesuaikan dengan nama tabel di Supabase kamu
     createdAt: 'createdat',
     updatedAt: 'updatedat'
   });
-  return User;
+  return ApiKey;
 };

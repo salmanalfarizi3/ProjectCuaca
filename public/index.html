@@ -9,119 +9,86 @@
   <style>
     body { font-family: 'Inter', sans-serif; }
     .glass-card {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-sky-900 to-indigo-950 text-white min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+<body class="bg-gradient-to-b from-[#38bdf8] via-[#0284c7] to-[#1e3a8a] text-white min-h-screen flex flex-col justify-between selection:bg-white selection:text-sky-600">
 
-  
+  <!-- Header -->
   <header class="max-w-6xl mx-auto w-full px-6 py-6 flex justify-between items-center">
     <div class="flex items-center gap-2.5">
-      <div class="bg-sky-500 p-2 rounded-xl shadow-lg shadow-sky-500/30">
-        <span class="text-lg">⚡</span>
+      <div class="bg-white p-2 rounded-xl shadow-lg shadow-black/10">
       </div>
-      <span class="font-bold text-lg tracking-tight">TravelWeather<span class="text-sky-400">.API</span></span>
+      <span class="font-bold text-lg tracking-tight">TripMeteo<span class="text-white/80"></span></span>
     </div>
     <div class="flex items-center gap-3">
       <a href="auth.html" class="text-xs font-semibold text-white/80 hover:text-white px-3 py-2 transition">Login Partner</a>
-      <a href="search.html" class="bg-sky-500 hover:bg-sky-400 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition shadow-lg shadow-sky-500/20">
-        API Playground →
+      <a href="search.html" class="bg-white hover:bg-sky-50 text-sky-700 px-4 py-2.5 rounded-xl text-xs font-semibold transition shadow-lg shadow-black/10">
+        Ayo Daftar →
       </a>
     </div>
   </header>
 
-  
+  <!-- Main Content -->
   <main class="max-w-5xl mx-auto px-6 pt-12 pb-20 space-y-16">
     
+    <!-- Hero Section -->
     <div class="text-center space-y-6 max-w-3xl mx-auto">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-500/10 border border-sky-400/20 text-xs font-medium text-sky-300">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/30 text-xs font-medium text-white">
         <span>✨</span> Platform Data Cuaca & Destinasi Wisata
       </div>
-      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-        Informasi Cuaca Akurat untuk <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-300">Perencanaan Wisata Terbaik</span>
+      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight text-white">
+        Informasi Cuaca Akurat untuk Perencanaan Wisata Terbaik</span>
       </h1>
-      <p class="text-base md:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
+      <p class="text-base md:text-lg text-white/90 max-w-2xl mx-auto leading-relaxed">
         Sediakan data suhu real-time, tingkat kelembaban, kecepatan angin, indeks UV, hingga rekomendasi status kelayakan tur untuk berbagai destinasi pilihan.
       </p>
       <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-        <a href="auth.html" class="bg-sky-500 hover:bg-sky-400 text-white font-semibold px-8 py-3.5 rounded-xl transition shadow-xl shadow-sky-500/25 text-sm text-center">
-          Daftar & Ambil Akses API
+        <a href="auth.html" class="bg-white hover:bg-sky-50 text-sky-700 font-semibold px-8 py-3.5 rounded-xl transition shadow-xl shadow-black/15 text-sm text-center">
+          Daftar & Nikmati fiturnya
         </a>
-        <a href="#features" class="glass-card hover:bg-white/15 text-white font-medium px-8 py-3.5 rounded-xl transition text-sm text-center">
+        <a href="#features" class="glass-card hover:bg-white/20 text-white font-medium px-8 py-3.5 rounded-xl transition text-sm text-center">
           Lihat Fitur Aplikasi
         </a>
       </div>
     </div>
 
-    
+    <!-- Features Section -->
     <div id="features" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8">
-      <div class="glass-card rounded-2xl p-6 space-y-3 hover:border-sky-400/40 transition">
-        <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-400 font-bold text-lg">🌡️</div>
-        <h3 class="font-bold text-base">Monitoring Suhu & Kondisi</h3>
-        <p class="text-xs text-slate-300 leading-relaxed">
+      <div class="glass-card rounded-2xl p-6 space-y-3 hover:border-white/50 transition">
+        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold text-lg">🌡️</div>
+        <h3 class="font-bold text-base text-white">Monitoring Suhu & Kondisi</h3>
+        <p class="text-xs text-white/80 leading-relaxed">
           Menyediakan informasi suhu saat ini secara presisi beserta deskripsi kondisi cuaca seperti cerah berawan atau hujan ringan.
         </p>
       </div>
       
-      <div class="glass-card rounded-2xl p-6 space-y-3 hover:border-sky-400/40 transition">
-        <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-400 font-bold text-lg">🎒</div>
-        <h3 class="font-bold text-base">Status Kelayakan Tour</h3>
-        <p class="text-xs text-slate-300 leading-relaxed">
+      <div class="glass-card rounded-2xl p-6 space-y-3 hover:border-white/50 transition">
+        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold text-lg">🎒</div>
+        <h3 class="font-bold text-base text-white">Status Kelayakan Tour</h3>
+        <p class="text-xs text-white/80 leading-relaxed">
           Fitur indikator khusus yang memberikan status keamanan (Aman/Waspada) untuk kelancaran jadwal perjalanan wisata outdoor.
         </p>
       </div>
 
-      <div class="glass-card rounded-2xl p-6 space-y-3 hover:border-sky-400/40 transition">
-        <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-400 font-bold text-lg">☀️</div>
-        <h3 class="font-bold text-base">Indeks UV & Kelembaban</h3>
-        <p class="text-xs text-slate-300 leading-relaxed">
+      <div class="glass-card rounded-2xl p-6 space-y-3 hover:border-white/50 transition">
+        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold text-lg">☀️</div>
+        <h3 class="font-bold text-base text-white">Indeks UV & Kelembaban</h3>
+        <p class="text-xs text-white/80 leading-relaxed">
           Dilengkapi informasi tingkat kelembaban udara, kecepatan angin, serta panduan indeks UV untuk kenyamanan dan keamanan wisatawan.
         </p>
-      </div>
-    </div>
-
-    
-    <div class="glass-card rounded-2xl p-6 md:p-8 space-y-6">
-      <div class="flex justify-between items-center border-b border-white/10 pb-4">
-        <span class="text-xs font-semibold uppercase tracking-wider text-sky-300">✨ Pantau Cuaca Tanpa Ribet</span>
-        <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2.5 py-1 rounded-full font-mono">Live Preview</span>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-        <div class="space-y-4">
-          <h3 class="text-xl font-bold">Mau jalan-jalan tapi takut cuaca mendadak badai?</h3>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            Tenang, aplikasi ini siap bantu kamu ngecek kondisi cuaca di berbagai destinasi sebelum berangkat tour biar liburan atau jadwal jalan-jalan gak berantakan:
-          </p>
-          <ul class="text-xs text-slate-300 space-y-2">
-            <li>Tinggal ketik nama kotanya, langsung gercep keluar hasil cuacanya.</li>
-            <li> Parameter lengkap mulai dari suhu, kelembaban, sampai angin.</li>
-            <li> Ada status tour-nya juga, jadi tahu persis kapan waktu paling pas buat nongkrong atau outdoor.</li>
-          </ul>
-        </div>
-
-        <div class="bg-black/40 rounded-2xl p-5 font-mono text-xs space-y-2.5 border border-white/10 shadow-inner">
-          <div class="text-slate-500 text-[10px] pb-2 border-b border-white/10"> Cek Cuaca Hari Ini</div>
-          <div class="text-slate-300">Destinasi : <span class="text-white font-semibold">Yogyakarta, ID</span></div>
-          <div class="text-slate-300">Suhu Santai : <span class="text-amber-300">28°C (Cerah Adem)</span></div>
-          <div class="text-slate-300">Kelembaban : <span class="text-sky-300">75% (Pas buat jalan)</span></div>
-          <div class="text-slate-300">Kondisi Angin : <span class="text-emerald-300">12 km/h (Sepoi-sepoi)</span></div>
-          <div class="pt-2 border-t border-white/10 text-slate-300">
-            Status Tour : <span class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded text-[10px] font-bold">🟢 Aman Banget Buat Outdoor!</span>
-          </div>
-        </div>
       </div>
     </div>
 
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-white/10 py-8 text-center text-xs text-slate-400 max-w-6xl mx-auto w-full px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-    <p>&copy; 2026 TravelWeather SaaS Platform. All rights reserved.</p>
+  <footer class="border-t border-white/20 py-8 text-center text-xs text-white/70 max-w-6xl mx-auto w-full px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <p>&copy; 2026 TripMeteo SaaS Platform. All rights reserved.</p>
     <div class="flex gap-4">
       <a href="index.html" class="hover:text-white transition">Beranda</a>
       <a href="auth.html" class="hover:text-white transition">Login Partner</a>

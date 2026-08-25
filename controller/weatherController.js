@@ -1,3 +1,4 @@
+'use strict';
 const db = require('../models');
 const WeatherLog = db.WeatherLog;
 
@@ -17,9 +18,11 @@ exports.getWeatherData = async (req, res) => {
     if (city) filter.city = city;
     if (condition) filter.weatherCondition = condition;
 
+    // Menggunakan raw: true agar terhindar dari error instance mapping Sequelize di serverless
     const data = await WeatherLog.findAll({
       where: filter,
-      order: [['id', 'DESC']]
+      order: [['id', 'DESC']],
+      raw: true 
     });
 
     return res.status(200).json({
@@ -28,7 +31,6 @@ exports.getWeatherData = async (req, res) => {
       data: data
     });
   } catch (error) {
-    // Ditambahkan stack error agar tampil di Postman
     return res.status(500).json({
       status: 'error',
       message: 'Gagal mengambil data dari database',

@@ -2,22 +2,21 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class ApiKey extends Model {
+  class User extends Model {
     static associate(models) {
-      if (models.User) {
-        ApiKey.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
-      }
+     
     }
   }
-  ApiKey.init({
-    key: { type: DataTypes.STRING, allowNull: false, unique: true },
-    userId: { type: DataTypes.INTEGER, allowNull: false }
+  User.init({
+    username: { type: DataTypes.STRING, allowNull: false },
+    email: { type: DataTypes.STRING, allowNull: false, unique: true },
+    password: { type: DataTypes.STRING, allowNull: false }
   }, {
     sequelize,
-    modelName: 'ApiKey',
-    tableName: 'apikeys', 
+    modelName: 'User', 
+    tableName: 'users',
     createdAt: 'createdat',
-    updatedat: 'updatedat'
+    updatedAt: 'updatedat'
   });
-  return ApiKey;
+  return User;
 };

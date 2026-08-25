@@ -4,7 +4,14 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class ApiKey extends Model {
     static associate(models) {
-      ApiKey.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+      // Tambahkan 'field: userid' pada foreignKey relasi
+      ApiKey.belongsTo(models.User, { 
+        foreignKey: {
+          name: 'userId',
+          field: 'userid'
+        }, 
+        as: 'user' 
+      });
     }
   }
   ApiKey.init({

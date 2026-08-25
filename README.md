@@ -5,4 +5,4 @@ Get <img width="1907" height="1067" alt="Screenshot 2026-08-25 205119" src="http
 Post <img width="1907" height="1063" alt="Screenshot 2026-08-25 200953" src="https://github.com/user-attachments/assets/b2d9d3b5-c6af-4b0e-8bab-c2b203f85702" />
 Put <img width="1907" height="1066" alt="Screenshot 2026-08-25 201529" src="https://github.com/user-attachments/assets/26259c80-789a-4474-bae7-cf7f5856ac83" />
 Delete <img width="1907" height="1068" alt="Screenshot 2026-08-25 201630" src="https://github.com/user-attachments/assets/08330946-3343-4235-9f22-186a2930ec30" />
-Varcel <img width="1904" height="1068" alt="Screenshot 2026-08-25 205208" src="https://github.com/user-attachments/assets/045733c2-3f34-418a-829f-a4e8dc1cc698" />
+Varcel <img width="1910" height="1070" alt="Screenshot 2026-08-26 015302" src="https://github.com/user-attachments/assets/87226fcd-9219-44e8-a1f1-6cb85ba670eb" />

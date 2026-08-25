@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partner Portal - Login & API Key (JWT)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .glass-input {
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-sky-900 to-indigo-950 text-white min-h-screen flex items-center justify-center p-4 selection:bg-sky-500 selection:text-white">
+
+  <div class="max-w-md w-full glass-card rounded-3xl p-8 shadow-2xl space-y-6">
+    
+    
+    <div class="text-center space-y-2">
+      <a href="index.html" class="text-xs text-sky-300 hover:underline">← Kembali ke Beranda</a>
+      <h2 class="text-2xl font-bold tracking-tight">Portal Partner SaaS</h2>
+      <p class="text-xs text-slate-300">Kelola Akses API Key & JWT Tour Partner</p>
+    </div>
+
+    
+    <div class="flex rounded-xl glass-input p-1">
+      <button id="tabRegister" onclick="switchTab('register')" class="flex-1 py-2 text-xs font-semibold rounded-lg transition bg-sky-500 text-white shadow">Daftar Akun</button>
+      <button id="tabLogin" onclick="switchTab('login')" class="flex-1 py-2 text-xs font-semibold rounded-lg transition text-slate-300 hover:text-white">Sudah Punya Akun (Login)</button>
+    </div>
+
+    
+    <div id="authForm" class="space-y-4">
+      
+      <div id="companyField">
+        <label class="text-xs font-semibold text-slate-200 block mb-1">Nama Perusahaan / Partner</label>
+        <input type="text" id="nameInput" placeholder="Contoh: PT Tour Nusantara" class="glass-input w-full rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400">
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-slate-200 block mb-1">Email Bisnis</label>
+        <input type="email" id="emailInput" placeholder="partner@tour.com" class="glass-input w-full rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400">
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-slate-200 block mb-1">Password</label>
+        <input type="password" id="passInput" placeholder="••••••••" class="glass-input w-full rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400">
+      </div>
+
+      <button id="submitBtn" onclick="handleAuth()" class="w-full bg-sky-500 hover:bg-sky-400 font-semibold py-3.5 rounded-xl transition shadow-lg shadow-sky-500/25 text-sm">
+        Daftar & Generate API Key
+      </button>
+    </div>
+
+    
+    <div id="resultBox" class="hidden space-y-4 pt-2 border-t border-white/10">
+      <div class="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+        <span>✅</span> <span id="successMsg">Autentikasi Berhasil! Sesi JWT & API Key aktif.</span>
+      </div>
+      
+      <div class="space-y-1.5">
+        <label class="text-xs text-slate-300 block font-medium">API Key Privat Anda:</label>
+        <div class="flex gap-2">
+          <input type="text" id="generatedApiKey" readonly class="glass-input w-full rounded-xl px-3 py-2 text-xs font-mono text-sky-300 select-all" value="tw_live_99f8a7bc65de43109a">
+          <button onclick="copyKey()" class="bg-white/20 hover:bg-white/30 text-white font-medium px-3 py-2 rounded-xl text-xs transition">Salin</button>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="text-xs text-slate-300 block font-medium">Simulasi Token JWT:</label>
+        <input type="text" readonly class="glass-input w-full rounded-xl px-3 py-2 text-[10px] font-mono text-slate-400 truncate" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlBhcnRuZXIifQ...">
+      </div>
+
+      <a href="search.html" class="block text-center bg-sky-500 hover:bg-sky-400 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-sky-500/25 text-xs">
+        Lanjut ke Pencarian Cuaca Destinasi →
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    let currentMode = 'register'; 
+
+    function switchTab(mode) {
+      currentMode = mode;
+      const tabReg = document.getElementById('tabRegister');
+      const tabLog = document.getElementById('tabLogin');
+      const companyField = document.getElementById('companyField');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (mode === 'register') {
+        tabReg.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition bg-sky-500 text-white shadow";
+        tabLog.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition text-slate-300 hover:text-white";
+        companyField.classList.remove('hidden');
+        submitBtn.innerText = "Daftar & Generate API Key";
+      } else {
+        tabLog.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition bg-sky-500 text-white shadow";
+        tabReg.className = "flex-1 py-2 text-xs font-semibold rounded-lg transition text-slate-300 hover:text-white";
+        companyField.classList.add('hidden');
+        submitBtn.innerText = "Masuk (Login) & Ambil API Key";
+      }
+      
+      document.getElementById('resultBox').classList.add('hidden');
+      document.getElementById('authForm').classList.remove('hidden');
+    }
+
+    function handleAuth() {
+      const email = document.getElementById('emailInput').value.trim();
+      const pass = document.getElementById('passInput').value.trim();
+      const name = document.getElementById('nameInput').value.trim();
+      
+      if (!email || !pass || (currentMode === 'register' && !name)) {
+        alert("Mohon lengkapi semua kolom input yang tersedia!");
+        return;
+      }
+
+      
+      const apiKeyVal = document.getElementById('generatedApiKey').value;
+      localStorage.setItem('saas_api_key', apiKeyVal);
+
+      
+      if (currentMode === 'login') {
+        document.getElementById('successMsg').innerText = "Login Berhasil! Sesi API Key Anda dimuat kembali.";
+      } else {
+        document.getElementById('successMsg').innerText = "Registrasi Berhasil! API Key baru telah dibuat.";
+      }
+
+      
+      document.getElementById('authForm').classList.add('hidden');
+      document.getElementById('resultBox').classList.remove('hidden');
+    }
+
+    function copyKey() {
+      const copyText = document.getElementById("generatedApiKey");
+      copyText.select();
+      navigator.clipboard.writeText(copyText.value);
+      localStorage.setItem('saas_api_key', copyText.value);
+      alert("API Key berhasil disalin dan disimpan ke sesi browser!");
+    }
+  </script>
+</body>
+</html>

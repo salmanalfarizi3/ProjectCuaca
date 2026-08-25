@@ -4,7 +4,9 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class ApiKey extends Model {
     static associate(models) {
-      ApiKey.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+      if (models.User) {
+        ApiKey.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+      }
     }
   }
   ApiKey.init({
@@ -15,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'ApiKey',
     tableName: 'apikeys', 
     createdAt: 'createdat',
-    updatedAt: 'updatedat'
+    updatedat: 'updatedat'
   });
   return ApiKey;
 };

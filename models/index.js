@@ -6,21 +6,15 @@ const Sequelize = require('sequelize');
 const pg = require('pg');
 const process = require('process');
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
 
-let config = {};
-try {
-  config = require(__dirname + '/../config/config.js')[env] || {};
-} catch (e) {
-  config = {};
-}
+// Prioritaskan DATABASE_URL langsung dari Environment Variable Vercel
+const connectionString = process.env.DATABASE_URL;
 
 let sequelize = null;
 
 try {
-  const connectionString = process.env.DATABASE_URL || (config.use_env_variable ? process.env[config.use_env_variable] : null);
-
   if (connectionString) {
+    // Jalur Server / Cloud (Vercel)
     sequelize = new Sequelize(connectionString, {
       dialect: 'postgres',
       dialectModule: pg,
@@ -34,11 +28,12 @@ try {
       }
     });
   } else {
-    const dbName = process.env.DB_DATABASE || config.database || 'akhir';
-    const dbUser = process.env.DB_USER || config.username || 'postgres';
-    const dbPass = process.env.DB_PASS || config.password || '2025';
-    const dbHost = process.env.DB_HOST || config.host || 'localhost';
-    const dbPort = process.env.DB_PORT || config.port || 5432;
+    // Jalur Lokal (Laptop)
+    const dbName = process.env.DB_DATABASE || 'akhir';
+    const dbUser = process.env.DB_USER || 'postgres';
+    const dbPass = process.env.DB_PASS || '2025';
+    const dbHost = process.env.DB_HOST || 'localhost';
+    const dbPort = process.env.DB_PORT || 5432;
 
     sequelize = new Sequelize(dbName, dbUser, dbPass, {
       host: dbHost,
@@ -68,7 +63,7 @@ if (sequelize) {
       })
       .forEach(file => {
         const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-        db[model.name] = model
+        db[model.name] = model;
       });
 
     Object.keys(db).forEach(modelName => {

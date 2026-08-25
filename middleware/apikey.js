@@ -4,13 +4,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class ApiKey extends Model {
     static associate(models) {
-      if (models.User) {
-        ApiKey.belongsTo(models.User, { 
-          foreignKey: 'userid',
-          targetKey: 'id',
-          as: 'user' 
-        });
-      }
+      
     }
   }
   

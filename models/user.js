@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'ApiKey',
-    tableName: 'apikeys', // Sesuaikan dengan nama tabel di Supabase kamu
+    tableName: 'apikeys', 
     createdAt: 'createdat',
     updatedAt: 'updatedat'
   });

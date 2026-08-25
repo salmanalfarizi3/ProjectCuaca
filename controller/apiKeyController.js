@@ -10,18 +10,21 @@ try {
 
 exports.generateKey = async (req, res) => {
   const generatedKey = 'sk_live_' + crypto.randomBytes(24).toString('hex');
+  const userId = req.user?.id || req.user?.userId;
+
   try {
     if (!ApiKey || !ApiKey.create) {
       return res.status(201).json({ 
         message: 'API Key generated successfully (Simulasi DB)', 
-        keyData: { id: 1, userId: req.user?.userId || 1, apiKey: generatedKey } 
+        keyData: { id: 1, userId: userId || 1, key: generatedKey } 
       });
     }
 
     const keyData = await ApiKey.create({
-      userId: req.user.userId,
-      apiKey: generatedKey
+      userId: userId,
+      key: generatedKey
     });
+
     res.status(201).json({ message: 'API Key generated successfully', keyData });
   } catch (err) {
     res.status(500).json({ error: err.message });

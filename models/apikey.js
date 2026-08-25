@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     userId: { 
       type: DataTypes.INTEGER, 
       allowNull: false,
-      field: 'userid' 
+      field: 'userid'
     },
     key: { 
       type: DataTypes.STRING, 
@@ -21,9 +21,9 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'ApiKey',
-    tableName: 'apikeys', 
-    createdAt: 'createdat', 
-    updatedAt: 'updatedat'  
+    tableName: 'apikeys',
+    createdAt: 'createdat',
+    updatedAt: 'updatedat'
   });
   return ApiKey;
 };

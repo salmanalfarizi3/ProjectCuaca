@@ -19,7 +19,6 @@ exports.generateKey = async (req, res) => {
       });
     }
 
-    // Samakan placeholder :userid dengan key replacement
     const [result] = await db.sequelize.query(
       `INSERT INTO apikeys (userid, key, createdat, updatedat) 
        VALUES (:userid, :key, NOW(), NOW()) 

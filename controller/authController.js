@@ -20,7 +20,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    // 1. Cek secara eksplisit apakah email atau username sudah ada
+    // 1. Cek secara eksplisit apakah email sudah ada
     const existingUser = await User.findOne({ 
       where: { email } 
     });
@@ -41,7 +41,6 @@ exports.register = async (req, res) => {
     });
 
   } catch (err) {
-    // 3. Tampilkan pesan error database asli ke Postman untuk debugging
     console.error("Detail Error Register:", err);
     return res.status(500).json({ 
       error: 'Gagal mendaftar user',
@@ -54,9 +53,10 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
   
   try {
+    // Jika koneksi DB tidak tersedia (Simulasi)
     if (!User || !User.findOne) {
       const token = jwt.sign(
-        { email: email || 'salman@gmail.com', username: 'salman' },
+        { id: 1, userId: 1, email: email || 'salman@gmail.com', username: 'salman' }, // DITAMBAHKAN id DAN userId
         process.env.JWT_SECRET || 'mysupersecretkey123',
         { expiresIn: '1d' }
       );
@@ -73,8 +73,9 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid password' });
     }
 
+    // Buat JWT Token dengan menyertakan 'id' dan 'userId' sekaligus
     const token = jwt.sign(
-      { userId: user.id, username: user.username },
+      { id: user.id, userId: user.id, username: user.username, email: user.email }, 
       process.env.JWT_SECRET || 'mysupersecretkey123',
       { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
     );

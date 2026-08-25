@@ -9,7 +9,7 @@ try {
 
 exports.generateKey = async (req, res) => {
   const generatedKey = 'sk_live_' + crypto.randomBytes(24).toString('hex');
-  const currentUserId = req.user?.id || req.user?.userId || req.user?.userid || 1;
+  const currentUserId = req.user?.id || req.user?.userid || 1;
 
   try {
     if (!db || !db.sequelize) {
@@ -19,19 +19,24 @@ exports.generateKey = async (req, res) => {
       });
     }
 
-    const [result] = await db.sequelize.query(
+    // Gunakan QueryTypes.SELECT agar hasil RETURNING langsung berupa Array Objek tunggal [ { id, userid, key, createdat } ]
+    const results = await db.sequelize.query(
       `INSERT INTO apikeys (userid, key, createdat, updatedat) 
        VALUES (:userid, :key, NOW(), NOW()) 
        RETURNING id, userid, key, createdat`,
       {
         replacements: { userid: currentUserId, key: generatedKey },
-        type: db.sequelize.QueryTypes.INSERT
+        type: db.sequelize.QueryTypes.SELECT
       }
     );
 
+    const savedData = (results && results.length > 0) 
+      ? results[0] 
+      : { userid: currentUserId, key: generatedKey };
+
     return res.status(201).json({
       message: 'API Key generated successfully',
-      keyData: result[0] || { userid: currentUserId, key: generatedKey }
+      keyData: savedData
     });
 
   } catch (err) {

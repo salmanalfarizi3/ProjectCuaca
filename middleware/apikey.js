@@ -4,20 +4,20 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class ApiKey extends Model {
     static associate(models) {
-      ApiKey.belongsTo(models.User, { 
-        foreignKey: {
-          name: 'userId',
-          field: 'userid'
-        }, 
-        as: 'user' 
-      });
+      if (models.User) {
+        ApiKey.belongsTo(models.User, { 
+          foreignKey: 'userid',
+          targetKey: 'id',
+          as: 'user' 
+        });
+      }
     }
   }
   ApiKey.init({
-    userId: { 
+    userid: { 
       type: DataTypes.INTEGER, 
       allowNull: false,
-      field: 'userid' 
+      field: 'userid'
     },
     key: { 
       type: DataTypes.STRING, 
@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'ApiKey',
     tableName: 'apikeys', 
+    timestamps: true,
     createdAt: 'createdat',
     updatedAt: 'updatedat'
   });

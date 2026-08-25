@@ -11,8 +11,8 @@ try {
 exports.generateKey = async (req, res) => {
   const generatedKey = 'sk_live_' + crypto.randomBytes(24).toString('hex');
   
-  // Mengambil ID user dari token JWT (bisa req.user.id atau req.user.userId)
-  const currentUserId = req.user?.id || req.user?.userId || req.user?.id_user;
+  
+  const currentUserId = req.user?.id || req.user?.userId;
 
   if (!currentUserId) {
     return res.status(400).json({ 
@@ -28,6 +28,7 @@ exports.generateKey = async (req, res) => {
       });
     }
 
+   
     const keyData = await ApiKey.create({
       userId: currentUserId,
       key: generatedKey

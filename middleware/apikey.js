@@ -4,7 +4,6 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class ApiKey extends Model {
     static associate(models) {
-      // Tambahkan 'field: userid' pada foreignKey relasi
       ApiKey.belongsTo(models.User, { 
         foreignKey: {
           name: 'userId',
@@ -28,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'ApiKey',
-    tableName: 'apikeys',
+    tableName: 'apikeys', 
     createdAt: 'createdat',
     updatedAt: 'updatedat'
   });
